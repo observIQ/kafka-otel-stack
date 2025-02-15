@@ -1,0 +1,1 @@
+# kafka-otel-stack
