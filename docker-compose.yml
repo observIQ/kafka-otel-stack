@@ -1,0 +1,79 @@
+services:
+  kafka:
+    restart: always
+    image: bitnami/kafka:latest
+    environment:
+      KAFKA_CFG_NODE_ID: 0
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+
+  prometheus:
+    restart: always
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    user: root
+    depends_on:
+      - kafka
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=2d"
+      - "--web.enable-remote-write-receiver"
+      - "--web.listen-address=:9090"
+
+  grafana:
+    restart: always
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  agent:
+    restart: always
+    deploy:
+      replicas: 1
+    image: observiq/bindplane-agent:${AGENT_VERSION}
+    environment:
+      - OPAMP_ENDPOINT=${OPAMP_ENDPOINT}
+      - OPAMP_SECRET_KEY=${OPAMP_SECRET_KEY}
+      - OPAMP_LABELS=configuration=kafka-broker-local,ephemeral=true
+    depends_on:
+      - grafana
+
+  consumer:
+    restart: always
+    deploy:
+      replicas: 1
+    image: observiq/bindplane-agent:${AGENT_VERSION}
+    environment:
+      - OPAMP_ENDPOINT=${OPAMP_ENDPOINT}
+      - OPAMP_SECRET_KEY=${OPAMP_SECRET_KEY}
+      - OPAMP_LABELS=configuration=kafka-consumer-local,ephemeral=true
+    depends_on:
+      - agent
+
+  producer:
+    restart: always
+    deploy:
+      replicas: 1
+    image: observiq/bindplane-agent:${AGENT_VERSION}
+    environment:
+      - OPAMP_ENDPOINT=${OPAMP_ENDPOINT}
+      - OPAMP_SECRET_KEY=${OPAMP_SECRET_KEY}
+      - OPAMP_LABELS=configuration=kafka-producer-local,ephemeral=true
+    depends_on:
+      - agent
+
+volumes:
+  grafana_data:
+    driver: local
