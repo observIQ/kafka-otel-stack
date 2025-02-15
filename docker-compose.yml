@@ -1,4 +1,18 @@
 services:
+  flog:
+    restart: always
+    image: mingrammer/flog
+    volumes:
+      - /mnt/tmpfs:/var/log
+    command:
+     - "--number=5000000"
+     - "--output=/var/log/log.json"
+     - "--type=log"
+     - "--overwrite"
+     - "--delay=110.5ns"
+     #- "--delay=125ns"
+     - "--format=apache_common"
+
   kafka:
     restart: always
     image: bitnami/kafka:latest
@@ -67,6 +81,8 @@ services:
     deploy:
       replicas: 1
     image: observiq/bindplane-agent:${AGENT_VERSION}
+    volumes:
+      - /mnt/tmpfs:/var/log
     environment:
       - OPAMP_ENDPOINT=${OPAMP_ENDPOINT}
       - OPAMP_SECRET_KEY=${OPAMP_SECRET_KEY}

@@ -65,6 +65,8 @@
             }
           },
           "mappings": [],
+          "max": 250000,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -121,7 +123,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(otelcol_exporter_sent_log_records{job=\"producer\"}[$__rate_interval])",
+          "expr": "rate(otelcol_exporter_sent_log_records[$__rate_interval])",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -463,6 +465,6 @@
   "timezone": "browser",
   "title": "KPI",
   "uid": "bed5l1ymt4jcwa",
-  "version": 10,
+  "version": 12,
   "weekStart": ""
 }
