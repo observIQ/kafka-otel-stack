@@ -34,6 +34,10 @@ All tests done with in memory sending queue
 Consumer groups
 - unclear if one collector is always assigned the total number of partitions
 
+Ave log size: 270 bytes
+Ave batch size should be roughly 0.27MB
+16c / 32t ryzen 7950x3d
+
 Tuning guidelines
 - 0 - 20,000 EPS
   - 10 consumers
@@ -47,8 +51,6 @@ Tuning guidelines
 - 70,000 - 120,000 EPS
   - 30 consumers
   - 8 partitions
-
-
 - 200,000 EPS
   - Could never get this to work
     - 40 consumers
@@ -63,3 +65,20 @@ Log Size
   - also unclear if I was experiencing issues with "duplicate" logs"
     - telemetry generator
     - secops is known to start timing you out if you are sending repeat logs
+
+
+Processor impact.
+
+Using the 120,000 EPS configuration as a baseline.
+Processors are placed before the existing add field + batch processor
+
+Json processor
+- Sending queue goes to 0 right away, because the pipeline has slowed down
+  - Partition lag increases right away, further proving this point
+  - 95,000 EPS seems fine though
+
+Adding filter and marshal to simulate filtering some logs
+out and then going back to a string.
+- More lag, had to reduce log volume further
+
+- Seems okay at 75,000 EPS

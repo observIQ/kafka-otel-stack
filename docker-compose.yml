@@ -9,9 +9,9 @@ services:
      - "--output=/var/log/log.json"
      - "--type=log"
      - "--overwrite"
-     - "--delay=110.5ns"
-     #- "--delay=125ns"
-     - "--format=apache_common"
+     #- "--delay=110.5ns"
+     - "--delay=125ns"
+     - "--format=json"
 
   kafka:
     restart: always
