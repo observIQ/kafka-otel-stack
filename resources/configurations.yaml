@@ -1,0 +1,565 @@
+apiVersion: bindplane.observiq.com/v1
+kind: Configuration
+metadata:
+    id: 752f3768-ffb5-49ea-84d5-29ffb44d85bd
+    name: kafka-broker-local
+    labels:
+        platform: linux
+spec:
+    contentType: ""
+    measurementInterval: ""
+    disableLegacyEnvVarNormalization: false
+    sources:
+        - id: 01JM2XQRED3ZZ1QVRCXBMGDMKA
+          type: kafka_cluster
+          parameters:
+            - name: cluster_name
+              value: kafka
+            - name: protocol_version
+              value: 2.0.0
+            - name: brokers
+              value:
+                - kafka:9092
+            - name: client_id
+              value: otel-metrics-receiver
+            - name: collection_interval
+              value: 5
+            - name: enable_auth
+              value: false
+            - name: auth_type
+              value: basic
+            - name: basic_username
+              value: ""
+            - name: basic_password
+              value: (sensitive)
+              sensitive: true
+            - name: sasl_username
+              value: ""
+            - name: sasl_password
+              value: ""
+            - name: sasl_mechanism
+              value: SCRAM-SHA-256
+            - name: kerberos_service_name
+              value: ""
+            - name: kerberos_realm
+              value: ""
+            - name: kerberos_config_file
+              value: /etc/krb5.conf
+            - name: kerberos_auth_type
+              value: keytab
+            - name: kerberos_keytab_file
+              value: /etc/security/kafka.keytab
+            - name: kerberos_username
+              value: ""
+            - name: kerberos_password
+              value: ""
+            - name: enable_tls
+              value: false
+            - name: insecure_skip_verify
+              value: false
+            - name: ca_file
+              value: ""
+            - name: cert_file
+              value: ""
+            - name: key_file
+              value: ""
+          processors:
+            - id: 01JN6W8AH521MHA5MYDHBAHQKM
+              displayName: prometheus-local-cleanup
+              type: delete_fields_v2
+              parameters:
+                - name: telemetry_types
+                  value:
+                    - Metrics
+                - name: condition
+                  value: ""
+                - name: body_keys
+                  value: []
+                - name: attributes
+                  value: []
+                - name: resource_attributes
+                  value:
+                    - http.scheme
+                    - net.host.port
+                    - service.instance.id
+                    - service_instance_id
+                    - service_name
+                    - service_version
+                    - url.scheme
+            - id: 01JN6W8AH6HDBJPYPKS6TB6ZVN
+              displayName: detect-hostname
+              type: resource_detection_v2
+              parameters:
+                - name: detectors
+                  value:
+                    - system
+                - name: system_hostname_source
+                  value:
+                    - os
+                - name: ec2_tags
+                  value: []
+                - name: consul_address
+                  value: ""
+                - name: consul_auth
+                  value: None
+                - name: consul_token
+                  value: ""
+                - name: consul_token_file
+                  value: ""
+                - name: consul_datacenter
+                  value: ""
+                - name: consul_namespace
+                  value: ""
+                - name: consul_meta_labels
+                  value: {}
+                - name: k8snode_env_var
+                  value: KUBE_NODE_NAME
+                - name: override
+                  value: false
+                - name: timeout
+                  value: 2s
+          routes: {}
+    destinations:
+        - id: 01JM56R7BH8CPF1VP7GZ4TAF33
+          name: prometheus-remote-write-local
+    selector:
+        matchLabels:
+            configuration: kafka-broker-local
+---
+apiVersion: bindplane.observiq.com/v2beta
+kind: Configuration
+metadata:
+    id: 2e657489-aa0b-43ed-80d6-1255b13d8637
+    name: kafka-consumer-local
+    labels:
+        platform: linux
+spec:
+    contentType: ""
+    measurementInterval: ""
+    disableLegacyEnvVarNormalization: false
+    sources:
+        - id: 01JM5715DW8BZ288E8EB3PQ1FJ
+          type: prometheus
+          parameters:
+            - name: static_targets
+              value:
+                - localhost:8888
+            - name: job_name
+              value: consumer
+            - name: enable_tls
+              value: false
+            - name: insecure_skip_verify
+              value: false
+            - name: ca_file
+              value: ""
+            - name: cert_file
+              value: ""
+            - name: key_file
+              value: ""
+            - name: metrics_path
+              value: /metrics
+            - name: collection_interval
+              value: 5
+          processors:
+            - id: 01JN6VY6M0XVST78SCDT6RE61X
+              displayName: prometheus-local-cleanup
+              type: delete_fields_v2
+              parameters:
+                - name: telemetry_types
+                  value:
+                    - Metrics
+                - name: condition
+                  value: ""
+                - name: body_keys
+                  value: []
+                - name: attributes
+                  value:
+                    - service.instance.id
+                    - service.name
+                    - service.version
+                - name: resource_attributes
+                  value:
+                    - http.scheme
+                    - net.host.port
+                    - service.instance.id
+                    - service_instance_id
+                    - service_name
+                    - service_version
+                    - url.scheme
+                    - server.port
+                    - service.name
+                    - service.version
+            - id: 01JN6VY6M2JFY4ZCZY3EWBJX4T
+              displayName: detect-hostname
+              type: resource_detection_v2
+              parameters:
+                - name: detectors
+                  value:
+                    - system
+                - name: system_hostname_source
+                  value:
+                    - os
+                - name: ec2_tags
+                  value: []
+                - name: consul_address
+                  value: ""
+                - name: consul_auth
+                  value: None
+                - name: consul_token
+                  value: ""
+                - name: consul_token_file
+                  value: ""
+                - name: consul_datacenter
+                  value: ""
+                - name: consul_namespace
+                  value: ""
+                - name: consul_meta_labels
+                  value: {}
+                - name: k8snode_env_var
+                  value: KUBE_NODE_NAME
+                - name: override
+                  value: false
+                - name: timeout
+                  value: 2s
+          routes:
+            metrics:
+                - id: "0"
+                  components:
+                    - destinations/01JM571DFF78MHANNY0DR52GK6
+        - id: 01JM5FNG8DS7EC71RNK19GX0ST
+          type: kafka_otlp_source
+          parameters:
+            - name: telemetry_types
+              value:
+                - Logs
+            - name: protocol_version
+              value: 2.0.0
+            - name: brokers
+              value:
+                - kafka:9092
+            - name: group_id
+              value: otel-collector
+            - name: client_id
+              value: otel-collector
+            - name: log_topic
+              value: logs
+            - name: log_encoding
+              value: text
+            - name: log_text_encoding
+              value: utf-8
+            - name: metric_topic
+              value: otlp_metrics
+            - name: trace_topic
+              value: otlp_spans
+            - name: trace_encoding
+              value: otlp_proto
+            - name: enable_auth
+              value: false
+            - name: auth_type
+              value: basic
+            - name: basic_username
+              value: ""
+            - name: basic_password
+              value: ""
+            - name: sasl_username
+              value: ""
+            - name: sasl_password
+              value: ""
+            - name: sasl_mechanism
+              value: SCRAM-SHA-256
+            - name: kerberos_service_name
+              value: ""
+            - name: kerberos_realm
+              value: ""
+            - name: kerberos_config_file
+              value: /etc/krb5.conf
+            - name: kerberos_auth_type
+              value: keytab
+            - name: kerberos_keytab_file
+              value: /etc/security/kafka.keytab
+            - name: kerberos_username
+              value: ""
+            - name: kerberos_password
+              value: ""
+            - name: enable_tls
+              value: false
+            - name: insecure_skip_verify
+              value: false
+            - name: ca_file
+              value: ""
+            - name: cert_file
+              value: ""
+            - name: key_file
+              value: ""
+          routes:
+            logs:
+                - id: "0"
+                  components:
+                    - processors/01JM57ZDQ80ZY12ZJ0ESC42QV3
+    processors:
+        - id: 01JM57ZDQ80ZY12ZJ0ESC42QV3
+          parameters:
+            - name: telemetry_types
+              value:
+                - Logs
+          processors:
+            - id: 01JN6VPCSWW3QMTSDKS1D26TAR
+              displayName: secops-log-type
+              type: add_fields_v2
+              parameters:
+                - name: telemetry_types
+                  value:
+                    - Logs
+                - name: condition
+                  value: ""
+                - name: fields
+                  value:
+                    - fieldAction: upsert
+                      fieldType: attributes
+                      key: chronicle_log_type
+                      value: NIX_SYSTEM
+            - id: 01JM58XZ2YZHDAP9H9EWK1AT43
+              type: batch
+              parameters:
+                - name: send_batch_size
+                  value: 5000
+                - name: send_batch_max_size
+                  value: 5000
+                - name: timeout
+                  value: 10s
+          routes:
+            logs:
+                - id: "0"
+                  components:
+                    - destinations/01JN6VQ6SMZDN5EN2712WHE92R
+    destinations:
+        - id: 01JM571DFF78MHANNY0DR52GK6
+          name: prometheus-remote-write-local
+        - id: 01JN6VQ6SMZDN5EN2712WHE92R
+          name: dev
+    extensions:
+        - id: 01JM30C3X0ZPSWNTHC4CXWJQHA
+          type: pprof
+          parameters:
+            - name: listen_address
+              value: 127.0.0.1
+            - name: tcp_port
+              value: 1777
+            - name: block_profile_fraction
+              value: 0
+            - name: mutex_profile_fraction
+              value: 0
+            - name: should_write_file
+              value: false
+            - name: cpu_profile_file_name
+              value: ${OIQ_OTEL_COLLECTOR_HOME}/observiq-otel-collector.pprof
+    selector:
+        matchLabels:
+            configuration: kafka-consumer-local
+---
+apiVersion: bindplane.observiq.com/v1
+kind: Configuration
+metadata:
+    id: 3a090fde-a1a5-4fde-8abf-61c474c2d36f
+    name: kafka-producer-local
+    labels:
+        platform: linux
+spec:
+    contentType: ""
+    measurementInterval: ""
+    disableLegacyEnvVarNormalization: false
+    sources:
+        - id: 01JM5729CR37NY3KCJG0RFVZAT
+          type: prometheus
+          parameters:
+            - name: static_targets
+              value:
+                - localhost:8888
+            - name: job_name
+              value: producer
+            - name: enable_tls
+              value: false
+            - name: insecure_skip_verify
+              value: false
+            - name: ca_file
+              value: ""
+            - name: cert_file
+              value: ""
+            - name: key_file
+              value: ""
+            - name: metrics_path
+              value: /metrics
+            - name: collection_interval
+              value: 5
+          processors:
+            - id: 01JN6VW967YVSK7DFBGQXSQPYY
+              displayName: prometheus-local-cleanup
+              type: delete_fields_v2
+              parameters:
+                - name: telemetry_types
+                  value:
+                    - Metrics
+                - name: condition
+                  value: ""
+                - name: body_keys
+                  value: []
+                - name: attributes
+                  value:
+                    - service.name
+                    - service.version
+                    - service.instance.id
+                - name: resource_attributes
+                  value:
+                    - http.scheme
+                    - net.host.port
+                    - service.instance.id
+                    - service_instance_id
+                    - service_name
+                    - service_version
+                    - url.scheme
+                    - service.name
+                    - service.version
+                    - server.port
+            - id: 01JN6VW968R583B2ZGRM73602T
+              displayName: detect-hostname
+              type: resource_detection_v2
+              parameters:
+                - name: detectors
+                  value:
+                    - system
+                - name: system_hostname_source
+                  value:
+                    - os
+                - name: ec2_tags
+                  value: []
+                - name: consul_address
+                  value: ""
+                - name: consul_auth
+                  value: None
+                - name: consul_token
+                  value: ""
+                - name: consul_token_file
+                  value: ""
+                - name: consul_datacenter
+                  value: ""
+                - name: consul_namespace
+                  value: ""
+                - name: consul_meta_labels
+                  value: {}
+                - name: k8snode_env_var
+                  value: KUBE_NODE_NAME
+                - name: override
+                  value: false
+                - name: timeout
+                  value: 2s
+          routes: {}
+        - id: 01JM59PG3T4HQ70TJCDKP7QER9
+          type: file_v2
+          parameters:
+            - name: file_path
+              value:
+                - /var/log/log.json
+            - name: exclude_file_path
+              value: []
+            - name: log_type
+              value: file
+            - name: multiline_parsing
+              value: none
+            - name: multiline_line_start_pattern
+              value: ""
+            - name: multiline_line_end_pattern
+              value: ""
+            - name: include_file_name_attribute
+              value: true
+            - name: include_file_path_attribute
+              value: false
+            - name: include_file_name_resolved_attribute
+              value: false
+            - name: include_file_path_resolved_attribute
+              value: false
+            - name: delete_after_read
+              value: false
+            - name: encoding
+              value: utf-8
+            - name: compression
+              value: none
+            - name: poll_interval
+              value: 200
+            - name: force_flush_period
+              value: 500ms
+            - name: max_log_size
+              value: 1MiB
+            - name: max_concurrent_files
+              value: 1024
+            - name: start_at
+              value: end
+            - name: fingerprint_size
+              value: 1kb
+            - name: enable_offset_storage
+              value: true
+            - name: offset_storage_dir
+              value: ${OIQ_OTEL_COLLECTOR_HOME}/storage
+            - name: retry_on_failure_enabled
+              value: false
+            - name: retry_on_failure_initial_interval
+              value: 1
+            - name: retry_on_failure_max_interval
+              value: 30
+            - name: retry_on_failure_max_elapsed_time
+              value: 300
+            - name: enable_sorting
+              value: false
+            - name: sorting_method
+              value: regex
+            - name: sort_rules
+              value: []
+          processors:
+            - id: 01JM5MMW0MX55K5GTK0Z08V59W
+              displayName: Parse Log Body as JSON
+              type: parse_json
+              parameters:
+                - name: telemetry_types
+                  value:
+                    - Logs
+                - name: log_condition
+                  value: "true"
+                - name: log_source_field_type
+                  value: Body
+                - name: log_body_source_field
+                  value: ""
+                - name: log_target_field_type
+                  value: Body
+                - name: log_body_target_field
+                  value: ""
+                - name: metric_condition
+                  value: ""
+                - name: metric_source_field_type
+                  value: Attribute
+                - name: metric_target_field_type
+                  value: Attribute
+                - name: trace_condition
+                  value: ""
+                - name: trace_source_field_type
+                  value: Attribute
+                - name: trace_target_field_type
+                  value: Attribute
+          routes: {}
+    destinations:
+        - id: 01JM51XE0DMMERYBXC3FYE515E
+          name: kafka-docker
+          processors:
+            - id: 01JN6VSFN3PHQ37F1S96KRG2XN
+              displayName: secops-batch
+              type: batch
+              parameters:
+                - name: send_batch_size
+                  value: 500
+                - name: send_batch_max_size
+                  value: 500
+                - name: timeout
+                  value: 6s
+        - id: 01JM572DMP42S9VT3PDN4TF6JV
+          name: prometheus-remote-write-local
+    selector:
+        matchLabels:
+            configuration: kafka-producer-local

@@ -2,7 +2,7 @@
 
 set -e
 
-export AGENT_VERSION="1.70.0"
+export AGENT_VERSION="1.71.5"
 export OPAMP_ENDPOINT="wss://app.bindplane.com/v1/opamp"
 
 # ensure OPAMP_SECRET_KEY is set
@@ -19,6 +19,7 @@ else
 fi
 
 docker compose up -d
+sleep 10
 docker exec -it kafka-otel-stack-kafka-1 kafka-topics.sh \
     --alter \
     --topic logs \
@@ -28,5 +29,3 @@ docker exec -it kafka-otel-stack-kafka-1 kafka-topics.sh \
     --describe \
     --topic logs \
     --bootstrap-server localhost:9092 || true
-docker exec -it kafka-otel-stack-kafka-1 kafka-consumer-groups.sh \
-    --bootstrap-server localhost:9092 --group otel-collector --describe || true

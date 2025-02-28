@@ -1,0 +1,166 @@
+apiVersion: bindplane.observiq.com/v1
+kind: Destination
+metadata:
+    id: dev
+    name: dev
+spec:
+    type: dev_null
+    parameters:
+        - name: telemetry_types
+          value:
+            - Logs
+---
+apiVersion: bindplane.observiq.com/v1
+kind: Destination
+metadata:
+    id: 01JM51XE0DMMERYBXC3FYE515E
+    name: kafka-docker
+spec:
+    type: kafka_otlp_destination
+    parameters:
+        - name: telemetry_types
+          value:
+            - Logs
+        - name: protocol_version
+          value: 2.0.0
+        - name: brokers
+          value:
+            - kafka:9092
+        - name: timeout
+          value: 5
+        - name: log_topic
+          value: logs
+        - name: log_encoding
+          value: raw
+        - name: metric_topic
+          value: otlp_metrics
+        - name: metric_encoding
+          value: otlp_proto
+        - name: trace_topic
+          value: otlp_spans
+        - name: trace_encoding
+          value: otlp_proto
+        - name: compression
+          value: gzip
+        - name: max_message_bytes
+          value: 1e+06
+        - name: required_acks
+          value: 1
+        - name: flush_max_messages
+          value: 0
+        - name: enable_auth
+          value: false
+        - name: auth_type
+          value: basic
+        - name: basic_username
+          value: ""
+        - name: basic_password
+          value: (sensitive)
+          sensitive: true
+        - name: sasl_username
+          value: ""
+        - name: sasl_password
+          value: (sensitive)
+          sensitive: true
+        - name: sasl_mechanism
+          value: SCRAM-SHA-256
+        - name: enable_tls
+          value: false
+        - name: tls_insecure
+          value: false
+        - name: tls_ca_file
+          value: ""
+        - name: tls_cert_file
+          value: ""
+        - name: tls_key_file
+          value: ""
+        - name: tls_server_name_override
+          value: ""
+        - name: kerberos_service_name
+          value: ""
+        - name: kerberos_realm
+          value: ""
+        - name: kerberos_config_file
+          value: /etc/krb5.conf
+        - name: kerberos_auth_type
+          value: keytab
+        - name: kerberos_keytab_file
+          value: /etc/security/kafka.keytab
+        - name: kerberos_username
+          value: ""
+        - name: kerberos_password
+          value: (sensitive)
+          sensitive: true
+        - name: retry_on_failure_enabled
+          value: true
+        - name: retry_on_failure_initial_interval
+          value: 5
+        - name: retry_on_failure_max_interval
+          value: 30
+        - name: retry_on_failure_max_elapsed_time
+          value: 300
+        - name: sending_queue_enabled
+          value: true
+        - name: sending_queue_num_consumers
+          value: 10
+        - name: sending_queue_queue_size
+          value: 5000
+        - name: persistent_queue_enabled
+          value: true
+        - name: persistent_queue_directory
+          value: ${OIQ_OTEL_COLLECTOR_HOME}/storage
+---
+apiVersion: bindplane.observiq.com/v1
+kind: Destination
+metadata:
+    id: 01JM56R7BH8CPF1VP7GZ4TAF33
+    name: prometheus-remote-write-local
+spec:
+    type: prometheus_remote_write
+    parameters:
+        - name: hostname
+          value: prometheus
+        - name: port
+          value: 9090
+        - name: path
+          value: /api/v1/write
+        - name: add_unit_and_type
+          value: false
+        - name: namespace
+          value: ""
+        - name: compression
+          value: gzip
+        - name: enable_resource_to_telemetry_conversion
+          value: true
+        - name: headers
+          value: {}
+        - name: external_labels
+          value: {}
+        - name: enable_tls
+          value: false
+        - name: strict_tls_verify
+          value: false
+        - name: ca_file
+          value: ""
+        - name: mutual_tls
+          value: false
+        - name: cert_file
+          value: ""
+        - name: key_file
+          value: ""
+        - name: enable_write_ahead_log
+          value: false
+        - name: wal_storage_path
+          value: prometheus_rw
+        - name: wal_buffer_size
+          value: 300
+        - name: wal_truncate_frequency
+          value: 60
+        - name: retry_on_failure_enabled
+          value: false
+        - name: retry_on_failure_initial_interval
+          value: 5
+        - name: retry_on_failure_max_interval
+          value: 30
+        - name: retry_on_failure_max_elapsed_time
+          value: 300
