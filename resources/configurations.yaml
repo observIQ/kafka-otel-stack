@@ -322,9 +322,9 @@ spec:
               type: batch
               parameters:
                 - name: send_batch_size
-                  value: 5000
+                  value: 500
                 - name: send_batch_max_size
-                  value: 5000
+                  value: 500
                 - name: timeout
                   value: 10s
           routes:
