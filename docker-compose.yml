@@ -65,8 +65,7 @@ services:
     restart: always
     deploy:
       replicas: 1
-    #image: observiq/bindplane-agent:${AGENT_VERSION}
-    image: bmedora/observiq-otel-collector-amd64:secops-metrics.4
+    image: observiq/bindplane-agent:${AGENT_VERSION}
     environment:
       - OPAMP_ENDPOINT=${OPAMP_ENDPOINT}
       - OPAMP_SECRET_KEY=${OPAMP_SECRET_KEY}
